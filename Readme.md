@@ -545,12 +545,3 @@ MIT License - Freedom to innovate while building the future of finance
 
 </div>
 
-[1](https://huggingface.co/datasets/gretelai/gretel-text-to-python-fintech-en-v1/blob/main/README.md)
-[2](https://dev.to/github/how-to-create-the-perfect-readme-for-your-open-source-project-1k69)
-[3](https://innostax.com/generate-dynamic-readme-md-files-via-github-actions/)
-[4](https://blogs.incyclesoftware.com/readme-files-for-internal-projects)
-[5](https://palantir.com/docs/foundry/code-repositories/readme/)
-[6](https://www.drupal.org/docs/develop/managing-a-drupalorg-theme-module-or-distribution-project/documenting-your-project/readmemd-template)
-[7](https://www.netguru.com/blog/how-to-write-a-perfect-readme)
-[8](https://stackoverflow.com/questions/11142547/ideal-readme-file-for-web-applications)
-[9](https://www.youtube.com/watch?v=eVGEea7adDM)
