@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package trading;
+
+service TradingService {
+  rpc CreateOrder(CreateOrderRequest) returns (OrderResponse);
+  rpc GetOrder(GetOrderRequest) returns (OrderResponse);
+  rpc UpdateOrder(UpdateOrderRequest) returns (OrderResponse);
+  rpc CancelOrder(CancelOrderRequest) returns (OrderResponse);
+  rpc GetOrderBook(OrderBookRequest) returns (OrderBookResponse);
+  rpc GetUserOrders(UserOrdersRequest) returns (UserOrdersResponse);
+  rpc ExecuteRfq(RfqRequest) returns (RfqResponse);
+}
+
+message CreateOrderRequest {
+  string userId = 1;
+  string bondId = 2;
+  string orderType = 3;
+  string side = 4;
+  double quantity = 5;
+  double price = 6;
+  double stopPrice = 7;
+  string timeInForce = 8;
+  string notes = 9;
+}
+
+message GetOrderRequest {
+  string id = 1;
+  string userId = 2;
+}
+
+message UpdateOrderRequest {
+  string id = 1;
+  string userId = 2;
+  double quantity = 3;
+  double price = 4;
+}
+
+message CancelOrderRequest {
+  string id = 1;
+  string userId = 2;
+}
+
+message OrderBookRequest {
+  string bondId = 1;
+}
+
+message UserOrdersRequest {
+  string userId = 1;
+  string status = 2;
+  string bondId = 3;
+  int32 page = 4;
+  int32 limit = 5;
+}
+
+message RfqRequest {
+  string userId = 1;
+  string bondId = 2;
+  string side = 3;
+  double quantity = 4;
+  double minPrice = 5;
+  double maxPrice = 6;
+  int32 expiryMinutes = 7;
+}
+
+message OrderResponse {
+  string id = 1;
+  string userId = 2;
+  string bondId = 3;
+  string orderType = 4;
+  string side = 5;
+  double quantity = 6;
+  double filledQuantity = 7;
+  double price = 8;
+  string status = 9;
+  string createdAt = 10;
+  string updatedAt = 11;
+}
+
+message OrderBookResponse {
+  string bondId = 1;
+  repeated OrderBookEntry bids = 2;
+  repeated OrderBookEntry asks = 3;
+  string lastUpdate = 4;
+}
+
+message OrderBookEntry {
+  double price = 1;
+  double quantity = 2;
+  int32 orders = 3;
+}
+
+message UserOrdersResponse {
+  repeated OrderResponse orders = 1;
+  int32 total = 2;
+  int32 page = 3;
+}
+
+message RfqResponse {
+  string id = 1;
+  string status = 2;
+  repeated Quote quotes = 3;
+}
+
+message Quote {
+  string providerId = 1;
+  double price = 2;
+  double quantity = 3;
+  string expiresAt = 4;
+}
