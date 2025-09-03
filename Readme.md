@@ -1,5 +1,3 @@
-Based on your feedback and the technology stack badges shown in the image, here's a much better, professional README.md that doesn't include non-existent domains or emails:
-
 # 🚀 **SetuBond - Corporate Bond Trading Platform**
 
 <div align="center">
