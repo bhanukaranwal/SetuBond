@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: ./services/gateway
+      target: development
+    volumes:
+      - ./services/gateway/src:/app/src
+      - ./services/gateway/package.json:/app/package.json
+    environment:
+      - NODE_ENV=development
+    command: npm run start:dev
+
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/package.json:/app/package.json
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
