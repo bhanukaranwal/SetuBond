@@ -16,7 +16,7 @@ SetuBond is an enterprise-grade corporate bond trading platform built with **sec
 We take security seriously. If you discover a security vulnerability, please follow our responsible disclosure process:
 
 ### **🔴 Critical/High Severity Issues**
-**Email**: [security@example.com](mailto:security@example.com)
+**Email**: [security@example.com](mailto:bhanu@karanwalcapital.com)
 - Use PGP encryption (key available on request)
 - Include "SECURITY VULNERABILITY" in subject line
 - **Response time**: 24 hours
