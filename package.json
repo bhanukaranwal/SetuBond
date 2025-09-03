@@ -1,0 +1,27 @@
+{
+  "name": "setubond-platform",
+  "version": "1.0.0",
+  "description": "Enterprise-grade corporate bond trading platform for the Indian market",
+  "main": "index.js",
+  "scripts": {
+    "dev": "docker-compose up -d",
+    "build": "lerna run build",
+    "start": "lerna run start",
+    "test": "lerna run test",
+    "deploy": "kubectl apply -f infrastructure/k8s/",
+    "terraform": "cd infrastructure/terraform && terraform apply"
+  },
+  "workspaces": [
+    "services/*",
+    "frontend",
+    "blockchain"
+  ],
+  "devDependencies": {
+    "lerna": "^7.4.2",
+    "@types/node": "^20.8.0",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
