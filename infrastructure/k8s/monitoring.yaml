@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: setubond-services
+  namespace: setubond
+spec:
+  selector:
+    matchLabels:
+      monitoring: "true"
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: setubond
+data:
+  trading-dashboard.json: |
+    {
+      "dashboard": {
+        "title": "SetuBond Trading Metrics",
+        "panels": [
+          {
+            "title": "Orders per Second",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(trading_orders_total[1m])"
+              }
+            ]
+          }
+        ]
+      }
+    }
