@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2025 Bhanu Karnwal
+Copyright (c) 2025 SetuBond Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,64 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+# Summary of Rights
+
+## ✅ What you CAN do:
+
+- **Commercial Use** - Use this software for commercial purposes
+- **Modification** - Modify the source code to suit your needs
+- **Distribution** - Share this software with others
+- **Private Use** - Use this software for personal or internal projects
+- **Sublicensing** - Grant sublicenses to third parties
+
+## 📋 What you MUST do:
+
+- **Include Copyright** - Provide attribution and include the license text in all copies
+- **Include License Notice** - Include this license in any substantial portions
+
+## ⚠️ What you CANNOT expect:
+
+- **No Warranty** - Software provided "as is" without guarantees
+- **No Liability** - Authors not liable for damages or issues
+- **No Support** - No obligation to provide support or updates
+
+---
+
+# 🏛️ Regulatory Notice
+
+**Important**: This software is provided for **educational, development, and open-source contribution purposes**. 
+
+For **live commercial deployment** as a bond trading platform in India, you must obtain proper regulatory licenses:
+
+- **SEBI Registration** - Online Bond Platform Provider (OBPP) License
+- **Stock Exchange Membership** - NSE/BSE debt segment registration  
+- **Compliance Framework** - KYC/AML and regulatory reporting systems
+
+**The contributors are not responsible for regulatory compliance when using this software commercially.**
+
+---
+
+# 🤝 Contributing
+
+By contributing to this project, you agree that your contributions will be licensed under the same MIT License.
+
+---
+
+# 📧 Contact
+
+For licensing questions or clarifications:
+
+- 📋 **Open an Issue** - [GitHub Issues](https://github.com/YOUR_USERNAME/setubond-platform/issues)
+- 💬 **Start Discussion** - [GitHub Discussions](https://github.com/YOUR_USERNAME/setubond-platform/discussions)
+- 📧 **Email** - For sensitive licensing matters only
+
+---
+
+**© 2025 SetuBond Platform Contributors**
+
+*This project is licensed under the MIT License - one of the most permissive open source licenses available.*
+
+*Built with ❤️ for the open source and fintech community*
