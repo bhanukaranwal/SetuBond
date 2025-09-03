@@ -1,0 +1,222 @@
+name: SetuBond CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: ap-south-1
+  EKS_CLUSTER_NAME: setubond-cluster
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [gateway, user-service, trading-service, data-service, ai-service, blockchain-service]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: services/${{ matrix.service }}/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd services/${{ matrix.service }}
+        npm ci
+
+    - name: Run tests
+      run: |
+        cd services/${{ matrix.service }}
+        npm test
+
+    - name: Run linting
+      run: |
+        cd services/${{ matrix.service }}
+        npm run lint
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+
+    - name: Run tests
+      run: |
+        cd frontend
+        npm test
+
+    - name: Type check
+      run: |
+        cd frontend
+        npm run type-check
+
+    - name: Build
+      run: |
+        cd frontend
+        npm run build
+
+  test-blockchain:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: |
+        cd blockchain
+        npm ci
+
+    - name: Compile contracts
+      run: |
+        cd blockchain
+        npx hardhat compile
+
+    - name: Run tests
+      run: |
+        cd blockchain
+        npx hardhat test
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: [test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: [test, test-frontend, test-blockchain, security-scan]
+    if: github.ref == 'refs/heads/main'
+    
+    strategy:
+      matrix:
+        service: [gateway, user-service, trading-service, data-service, ai-service, blockchain-service, frontend]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push image
+      env:
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        if [ "${{ matrix.service }}" = "frontend" ]; then
+          cd frontend
+        else
+          cd services/${{ matrix.service }}
+        fi
+        
+        docker build -t $ECR_REGISTRY/setubond-${{ matrix.service }}:$IMAGE_TAG .
+        docker tag $ECR_REGISTRY/setubond-${{ matrix.service }}:$IMAGE_TAG $ECR_REGISTRY/setubond-${{ matrix.service }}:latest
+        docker push $ECR_REGISTRY/setubond-${{ matrix.service }}:$IMAGE_TAG
+        docker push $ECR_REGISTRY/setubond-${{ matrix.service }}:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-and-push]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
+
+    - name: Deploy to Kubernetes
+      env:
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        # Update image tags in deployment manifests
+        find infrastructure/k8s -name "*.yaml" -exec sed -i "s|:latest|:${IMAGE_TAG}|g" {} +
+        
+        # Apply configurations
+        kubectl apply -f infrastructure/k8s/namespace.yaml
+        kubectl apply -f infrastructure/k8s/configmap.yaml
+        kubectl apply -f infrastructure/k8s/secrets.yaml
+        kubectl apply -f infrastructure/k8s/
+        
+        # Wait for rollout to complete
+        kubectl rollout status deployment/api-gateway -n setubond
+        kubectl rollout status deployment/user-service -n setubond
+        kubectl rollout status deployment/trading-service -n setubond
+        kubectl rollout status deployment/data-service -n setubond
+        kubectl rollout status deployment/ai-service -n setubond
+        kubectl rollout status deployment/blockchain-service -n setubond
+        kubectl rollout status deployment/frontend -n setubond
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: always()
+    
+    steps:
+    - name: Notify Slack
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#setubond-deployments'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+      if: always()
